@@ -1,0 +1,517 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Launch Control Interface</title>
+    <style>
+        /* --- FONTS & BODY --- */
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+        body {
+            background-color: #1a1a1a;
+            color: #00ff00;
+            font-family: 'Share Tech Mono', monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        /* --- MAIN CONTAINER --- */
+        #main-container {
+            display: grid;
+            grid-template-areas:
+                "header header"
+                "main-left main-right";
+            grid-template-rows: auto 1fr;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            width: 100%;
+            max-width: 1400px;
+            height: 95vh;
+            max-height: 800px;
+            background-color: #2c2c2c;
+            padding: 10px;
+            border: 2px solid #555;
+            box-sizing: border-box;
+        }
+
+        /* --- HEADER AREA --- */
+        #header {
+            grid-area: header;
+            display: flex;
+            gap: 5px;
+            align-items: stretch;
+        }
+
+        #timer {
+            background-color: #cc0000;
+            color: white;
+            border: 3px solid white;
+            padding: 10px 20px;
+            font-size: 2.5em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            letter-spacing: 2px;
+        }
+
+        #launch-hold-btn {
+            background-color: #ffff00;
+            color: black;
+            border: 3px solid #cc0000;
+            padding: 10px 20px;
+            font-size: 1.5em;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #status-panels {
+            flex-grow: 1;
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 5px;
+        }
+
+        .status-panel {
+            background-color: #444;
+            border: 1px solid #666;
+            padding: 5px;
+            font-size: 0.8em;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .status-panel .title {
+            text-align: center;
+            color: #eee;
+            border-bottom: 1px solid #666;
+            padding-bottom: 3px;
+            margin-bottom: 3px;
+        }
+        
+        .status-panel .data-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2px;
+        }
+
+        .status-panel .data-point {
+            text-align: right;
+        }
+
+        .status-panel .highlight {
+            background-color: #006400;
+            color: white;
+            padding: 2px;
+            text-align: center;
+            margin-top: 2px;
+        }
+
+        /* --- MAIN CONTENT PANELS --- */
+        .main-panel {
+            background-color: #212121;
+            border: 2px solid #555;
+            display: flex;
+            gap: 5px;
+        }
+
+        #main-left { grid-area: main-left; }
+        #main-right { grid-area: main-right; }
+
+        .side-buttons {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            padding: 10px 5px;
+        }
+
+        .side-btn {
+            background-color: #111;
+            color: white;
+            border: 2px solid #666;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+        }
+
+        .display-screen {
+            flex-grow: 1;
+            background-color: #333;
+            border: 2px solid #777;
+            margin: 5px 0;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .display-title {
+            background-color: #444;
+            color: white;
+            padding: 5px 10px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        /* --- SYSTEM SUMMARY 3 --- */
+        #sys-summary-3 .content {
+            padding: 10px;
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 15px;
+            font-size: 0.9em;
+            overflow: auto;
+        }
+
+        .data-table {
+            display: grid;
+            grid-template-columns: auto repeat(3, 1fr);
+            gap: 4px 8px;
+            align-items: center;
+        }
+
+        .data-table.wsb {
+             grid-template-columns: auto repeat(3, 1fr);
+        }
+
+        .data-table.apu-right {
+             grid-template-columns: auto 1fr 1fr 1fr;
+             gap: 4px 8px;
+        }
+
+        .data-table .label { color: #00ffff; text-align: left;}
+        .data-table .value { color: #00ff00; text-align: right; }
+        .data-table .header { color: #fff; text-align: right; }
+        .data-table .divider { grid-column: 1 / -1; border-top: 1px solid #555; height: 1px; margin: 5px 0;}
+
+        /* --- RIGHT PANEL --- */
+        #right-display-content {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        #launch-hold-message {
+            background-color: #000;
+            color: #ff0000;
+            text-align: center;
+            padding: 20px;
+            font-size: 1.5em;
+            margin: 10px;
+            border: 1px solid #444;
+        }
+        
+        #tank-status {
+            padding: 10px;
+            display: grid;
+            grid-template-areas: 
+                "ext ext"
+                "srb-l srb-r";
+            gap: 10px;
+        }
+
+        .progress-bar-container {
+            color: white;
+        }
+        
+        .progress-bar {
+            height: 25px;
+            background-color: #111;
+            border: 1px solid #777;
+            padding: 2px;
+        }
+        
+        .progress-bar .fill {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #ext-tank { grid-area: ext; }
+        #ext-tank .fill {
+            width: 100%;
+            background: linear-gradient(90deg, #e87a27 98%, #111 98%);
+        }
+        
+        #srb-l { grid-area: srb-l; }
+        #srb-r { grid-area: srb-r; }
+
+        .srb .fill {
+            width: 100%;
+            background: linear-gradient(90deg, #009900 75%, #111 75%);
+        }
+        .srb-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8em;
+            padding: 0 5px;
+        }
+
+        /* --- SYSTEM SUMMARY 4 --- */
+         #sys-summary-4 {
+            flex-grow: 1;
+            margin: 10px;
+            border: 1px solid #555;
+            background-color: #444;
+         }
+
+        #sys-summary-4 .content {
+            padding: 10px;
+            font-size: 0.9em;
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 10px;
+        }
+        
+        #sys-summary-4 .data-table {
+            grid-template-columns: auto repeat(5, 1fr);
+        }
+        
+        #sys-summary-4 .data-table.manif {
+             grid-template-columns: auto repeat(2, 1fr);
+        }
+
+        /* --- BOTTOM BUTTONS --- */
+        .bottom-buttons {
+            display: flex;
+            justify-content: flex-end;
+            padding: 5px;
+            gap: 5px;
+            background-color: #212121;
+        }
+
+        .bottom-btn {
+            background-color: #111;
+            color: white;
+            border: 2px solid #666;
+            padding: 5px 15px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="main-container">
+        <header id="header">
+            <div id="timer">00:05:00</div>
+            <div id="launch-hold-btn">Launch Hold</div>
+            <div id="status-panels">
+                <div class="status-panel">
+                    <div class="title">FUEL CELL 1</div>
+                    <div class="data-grid">
+                        <div class="data-point">34 V</div><div class="data-point">63 A</div>
+                        <div class="data-point">33 V</div><div class="data-point">62 A</div>
+                        <div class="data-point">32 V</div><div class="data-point">61 A</div>
+                        <div class="data-point">31 V</div><div class="data-point">60 A</div>
+                    </div>
+                </div>
+                <div class="status-panel">
+                    <div class="title">FUEL CELL 2</div>
+                    <div class="data-grid">
+                        <div class="data-point">34 V</div><div class="data-point">63 A</div>
+                        <div class="data-point">33 V</div><div class="data-point">62 A</div>
+                        <div class="data-point">32 V</div><div class="data-point">61 A</div>
+                        <div class="data-point">31 V</div><div class="data-point">60 A</div>
+                    </div>
+                </div>
+                <div class="status-panel">
+                    <div class="title">FUEL CELL 3</div>
+                    <div class="data-grid">
+                        <div class="data-point">34 V</div><div class="data-point">63 A</div>
+                        <div class="data-point">33 V</div><div class="data-point">62 A</div>
+                        <div class="data-point">32 V</div><div class="data-point">61 A</div>
+                        <div class="data-point">31 V</div><div class="data-point">60 A</div>
+                    </div>
+                </div>
+                <div class="status-panel">
+                    <div class="title">CABIN TEMP</div>
+                    <div>79 &deg;F</div>
+                    <div>78 &deg;F</div>
+                    <div>77 &deg;F</div>
+                    <div>76 &deg;F</div>
+                </div>
+                <div class="status-panel">
+                    <div class="title">CABIN PRESSURE</div>
+                    <div>800 Tor</div>
+                    <div>775 Tor</div>
+                    <div>750 Tor</div>
+                    <div>725 Tor</div>
+                    <div class="highlight">760</div>
+                </div>
+                <div class="status-panel">
+                    <div class="title">N2</div>
+                    <div>80 %</div>
+                    <div>79 %</div>
+                    <div>78 %</div>
+                    <div>77 %</div>
+                </div>
+                <div class="status-panel">
+                    <div class="title">O2</div>
+                    <div>22 %</div>
+                    <div>21 %</div>
+                    <div>20 %</div>
+                    <div>19 %</div>
+                    <div class="highlight">21</div>
+                </div>
+                 <div class="status-panel">
+                    <div class="title">CO2</div>
+                    <div>0.06 %</div>
+                    <div>0.05 %</div>
+                    <div>0.04 %</div>
+                    <div>0.03 %</div>
+                    <div class="highlight">0.04 %</div>
+                </div>
+            </div>
+        </header>
+
+        <div id="main-left" class="main-panel">
+            <div class="side-buttons">
+                <div class="side-btn">CTD</div>
+                <div class="side-btn">PG</div>
+                <div class="side-btn">&lt;</div>
+                <div class="side-btn">&gt;</div>
+                <div class="side-btn">ENT</div>
+                <div class="side-btn">GO</div>
+            </div>
+            <div class="display-screen" id="sys-summary-3">
+                <div class="display-title">SYSTEM SUMMARY 3</div>
+                <div class="content">
+                    <div class="data-tables-left">
+                        <div class="data-table">
+                            <div class="label">APU</div><div class="header">1</div><div class="header">2</div><div class="header">3</div>
+                            <div class="label">EGT</div><div class="value">942</div><div class="value">942</div><div class="value">942</div>
+                            <div class="label">SPEED %</div><div class="value">0</div><div class="value">0</div><div class="value">0</div>
+                            <div class="label">B/U EGT</div><div class="value">942</div><div class="value">942</div><div class="value">942</div>
+                            <div class="label">FUEL QTY</div><div class="value">76</div><div class="value">77</div><div class="value">77</div>
+                            <div class="label">FUEL TK P</div><div class="value">209</div><div class="value">210</div><div class="value">212</div>
+                            <div class="label">FUEL OUT P</div><div class="value">209</div><div class="value">210</div><div class="value">212</div>
+                            <div class="label">TANK A T</div><div class="value">63</div><div class="value">65</div><div class="value">62</div>
+                            <div class="label">TANK B T</div><div class="value">63</div><div class="value">65</div><div class="value">62</div>
+                            <div class="label">FUEL TEMP</div><div class="value">69</div><div class="value">67</div><div class="value">68</div>
+                            <div class="label">TK SURF T</div><div class="value">70</div><div class="value">68</div><div class="value">69</div>
+                            <div class="label">TK HTR T</div><div class="value">211</div><div class="value">210</div><div class="value">209</div>
+                            <div class="label">FEED LN T</div><div class="value">57</div><div class="value">58</div><div class="value">58</div>
+                            <div class="label">PUMP IN T</div><div class="value">57</div><div class="value">58</div><div class="value">58</div>
+                            <div class="label">DRN LN 1 T</div><div class="value">62</div><div class="value">62</div><div class="value">63</div>
+                            <div class="label">DRN LN 2 T</div><div class="value">62</div><div class="value">62</div><div class="value">63</div>
+                            <div class="label">PUMP OUT T</div><div class="value">92</div><div class="value">90</div><div class="value">88</div>
+                            <div class="label">BYP LN</div><div class="value">108</div><div class="value">106</div><div class="value">102</div>
+                            <div class="label">TEST LN 1</div><div class="value">62</div><div class="value">62</div><div class="value">63</div>
+                            <div class="label">TEST LN 2</div><div class="value">62</div><div class="value">62</div><div class="value">63</div>
+                        </div>
+                    </div>
+                    <div class="data-tables-right">
+                        <div class="data-table apu-right">
+                            <div class="label">APU</div><div class="header">1</div><div class="header">2</div><div class="header">3</div>
+                            <div class="label">OIL TEMP</div><div class="value">64</div><div class="value">63</div><div class="value">62</div>
+                            <div class="label">OIL IN TEMP</div><div class="value">250</div><div class="value">250</div><div class="value">250</div>
+                            <div class="label">OIL OUT T</div><div class="value">63</div><div class="value">62</div><div class="value">60</div>
+                            <div class="label">OIL OUT P</div><div class="value">25</div><div class="value">25</div><div class="value">25</div>
+                            <div class="label">GG INJ P</div><div class="value">1271</div><div class="value">1271</div><div class="value">1271</div>
+                            <div class="label">GG BED T</div><div class="value">426</div><div class="value">423</div><div class="value">421</div>
+                            <div class="label">GG SPLV LN T</div><div class="value">113</div><div class="value">111</div><div class="value">107</div>
+                            <div class="label">GBX PRESS</div><div class="value">25</div><div class="value">25</div><div class="value">25</div>
+                            <div class="label">N2BCH P</div><div class="value">141</div><div class="value">142</div><div class="value">140</div>
+                            <div class="label">GBX BRG P</div><div class="value">82</div><div class="value">81</div><div class="value">84</div>
+                        </div>
+                        <div class="data-table wsb">
+                            <div class="divider"></div>
+                            <div class="label">WSB</div><div class="header">A</div><div class="header">B</div><div class="header">C</div>
+                            <div class="label">N2 PRESS</div><div class="value">2499</div><div class="value">2506</div><div class="value">2492</div>
+                            <div class="label">REG PRESS</div><div class="value">28</div><div class="value">28</div><div class="value">28</div>
+                            <div class="label">VENT TEMP</div><div class="value">122</div><div class="value">122</div><div class="value">122</div>
+                            <div class="label">TANK TEMP</div><div class="value">57</div><div class="value">58</div><div class="value">55</div>
+                            <div class="label">N2 TEMP</div><div class="value">57</div><div class="value">58</div><div class="value">55</div>
+                            <div class="label">BLR TEMP</div><div class="value">60</div><div class="value">58</div><div class="value">61</div>
+                            <div class="label">H2O LN INJ</div><div class="value">71</div><div class="value">92</div><div class="value">72</div>
+                            <div class="label">H2O QTY</div><div class="value">100</div><div class="value">100</div><div class="value">100</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bottom-buttons">
+                    <div class="bottom-btn">PWR</div>
+                    <div class="bottom-btn">SEL</div>
+                    <div class="bottom-btn">MNU</div>
+                </div>
+            </div>
+            <div class="side-buttons">
+                <div class="side-btn">PRV</div>
+                <div class="side-btn">NXT</div>
+                <div class="side-btn">INS</div>
+                <div class="side-btn">DEL</div>
+                <div class="side-btn">A</div>
+                <div class="side-btn">V</div>
+            </div>
+        </div>
+
+        <div id="main-right" class="main-panel">
+            <div class="display-screen" id="right-display-content">
+                <div id="launch-hold-message">Scheduled T-05:00 Launch Hold</div>
+                <div id="tank-status">
+                     <div id="ext-tank" class="progress-bar-container">
+                        EXT. TANK
+                        <div class="progress-bar">
+                            <div class="fill"></div>
+                        </div>
+                        <div class="srb-labels"><span>100%</span><span>75%</span><span>50%</span><span>25%</span><span>0%</span></div>
+                    </div>
+                    <div id="srb-l" class="progress-bar-container srb">
+                        SRB-L
+                        <div class="progress-bar">
+                            <div class="fill"></div>
+                        </div>
+                        <div class="srb-labels"><span>100%</span><span>75%</span><span>50%</span><span>25%</span><span>0%</span></div>
+                    </div>
+                    <div id="srb-r" class="progress-bar-container srb">
+                        SRB-R
+                        <div class="progress-bar">
+                            <div class="fill"></div>
+                        </div>
+                         <div class="srb-labels"><span>100%</span><span>75%</span><span>50%</span><span>25%</span><span>0%</span></div>
+                    </div>
+                </div>
+                <div id="sys-summary-4">
+                     <div class="display-title">SYSTEM SUMMARY 4</div>
+                     <div class="content">
+                         <div class="data-table">
+                            <div class="label">CRYO TANK</div><div class="header">1</div><div class="header">2</div><div class="header">3</div><div class="header">4</div><div class="header">5</div>
+                            <div class="label">H2 PRESS</div><div class="value">208</div><div class="value">208</div><div class="value">206</div><div class="value">207</div><div class="value">207</div>
+                            <div class="label">O2 PRESS</div><div class="value">816</div><div class="value">815</div><div class="value">814</div><div class="value">814</div><div class="value">813</div>
+                            <div class="label">HTR TEMP 1</div><div class="value">-248</div><div class="value">-248</div><div class="value">-248</div><div class="value">-248</div><div class="value">-248</div>
+                            <div class="label">HTR TEMP 2</div><div class="value">-248</div><div class="value">-248</div><div class="value">-248</div><div class="value">-248</div><div class="value">-248</div>
+                         </div>
+                          <div class="data-table manif">
+                            <div class="label"></div><div class="header">MANF 1</div><div class="header">MANF 2</div>
+                            <div class="label"></div><div class="value">207</div><div class="value">207</div>
+                            <div class="label"></div><div class="value">813</div><div class="value">815</div>
+                            <div class="label"></div><div class="value">-248</div><div class="value">-248</div>
+                            <div class="label"></div><div class="value">-248</div><div class="value">-248</div>
+                         </div>
+                     </div>
+                </div>
+                 <div class="bottom-buttons">
+                    <div class="bottom-btn">PWR</div>
+                    <div class="bottom-btn">SEL</div>
+                    <div class="bottom-btn">MNU</div>
+                </div>
+            </div>
+             <div class="side-buttons">
+                <div class="side-btn">&lt;</div>
+                <div class="side-btn">&gt;</div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

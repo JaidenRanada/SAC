@@ -6,16 +6,52 @@ body {
 
 
 #panel {
+
   height: 100vh;
   aspect-ratio: 4 / 3;
   width: auto;
 
-  background-color: aliceblue;
+  background-color: rgb(0, 0, 0);
+
+  margin: auto;
+
 }
 
 #clock {
-  background-color: black;
-  width: 35%;
-  height: 12.5%;
-  padding-top: %;
+
+  background-color: rgb(200, 150, 150);
+
+  width: 22.5%;
+  height: calc( (.625/7.5) * 100%);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+}
+
+#Indicator {
+
+  background-color: aliceblue;
+
+  width: 22.5%;
+  height: calc( (.625/7.5) * 100% );
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+}
+
+#countdown {
+
+  font-family: Calibri;
+  font-weight: bold;
+
+  text-align: center;
+  color: white;
+  background-color: darkgrey;
+  padding: 0%;
+  font-size: 90px;
+
 }
