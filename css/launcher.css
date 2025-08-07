@@ -1,0 +1,24 @@
+#license-parent {
+    border-style: solid;
+    border-width: medium;
+    
+    text-align: center;
+    margin: 2.5% auto;
+
+    position: relative;
+
+    width: 25%;
+
+}
+
+#launcher-settings {
+    border-style: solid;
+    border-width: medium;
+    
+    text-align: center;
+    margin: 0 auto;
+
+    position: relative;
+
+    width: 25%;
+}
