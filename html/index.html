@@ -12,6 +12,23 @@
 <h3>SAC Interactive Control Panel </h3>
 <p>v 0.01</p>
 
+<p>Select Server Mode:</p>
+
+ <div>
+    <input type="radio" id="LocalSync" name="SyncMode" value="LocalSync" checked />
+    <label for="LocalSync">LocalSync</label>
+  </div>
+
+  <div>
+    <input type="radio" id="CloudSync" name="SyncMode" value="CloudSync" />
+    <label for="CloudSync">CloudSync</label>
+  </div>
+
+  <p><br>Sync Code:</p>
+  <input type="text" id="ServerID"/>
+
+
+
 <p id="isConnected">Server Connection: <span style="color:red">Not Connected</span></p>
 
 <p>
